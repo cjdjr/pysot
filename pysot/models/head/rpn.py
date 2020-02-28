@@ -73,6 +73,7 @@ class DepthwiseXCorr(nn.Module):
         
 
     def forward(self, kernel, search):
+        # print("ce : ",kernel.shape)
         kernel = self.conv_kernel(kernel)
         search = self.conv_search(search)
         feature = xcorr_depthwise(search, kernel)
@@ -108,6 +109,7 @@ class MultiRPN(RPN):
         loc = []
         for idx, (z_f, x_f) in enumerate(zip(z_fs, x_fs), start=2):
             rpn = getattr(self, 'rpn'+str(idx))
+            # print("cece : ",z_f.shape," ",x_f.shape)
             c, l = rpn(z_f, x_f)
             cls.append(c)
             loc.append(l)

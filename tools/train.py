@@ -78,12 +78,20 @@ def build_opt_lr(model, current_epoch=0):
         if isinstance(m, nn.BatchNorm2d):
             m.eval()
     if current_epoch >= cfg.BACKBONE.TRAIN_EPOCH:
-        for layer in cfg.BACKBONE.TRAIN_LAYERS:
-            for param in getattr(model.backbone, layer).parameters():
-                param.requires_grad = True
-            for m in getattr(model.backbone, layer).modules():
-                if isinstance(m, nn.BatchNorm2d):
-                    m.train()
+        if cfg.BACKBONE.TYPE=='darts':
+            for layer in cfg.BACKBONE.TRAIN_LAYERS:
+                for param in getattr(model.backbone.cells, layer).parameters():
+                    param.requires_grad = True
+                for m in getattr(model.backbone.cells, layer).modules():
+                    if isinstance(m, nn.BatchNorm2d):
+                        m.train()
+        else:
+            for layer in cfg.BACKBONE.TRAIN_LAYERS:
+                for param in getattr(model.backbone, layer).parameters():
+                    param.requires_grad = True
+                for m in getattr(model.backbone, layer).modules():
+                    if isinstance(m, nn.BatchNorm2d):
+                        m.train()
 
     trainable_params = []
     trainable_params += [{'params': filter(lambda x: x.requires_grad,
@@ -273,7 +281,8 @@ def main():
 
     # create model
     model = ModelBuilder().cuda().train()
-
+    # print(model.backbone)
+    # return
     # load pretrained backbone weights
     if cfg.BACKBONE.PRETRAINED:
         cur_path = os.path.dirname(os.path.realpath(__file__))

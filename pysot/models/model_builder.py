@@ -77,24 +77,42 @@ class ModelBuilder(nn.Module):
     def forward(self, data):
         """ only used in training
         """
-        template = data['template'].cuda()
-        search = data['search'].cuda()
+        template = data['template'].cuda() # (3,127,127)
+        search = data['search'].cuda() # (3,255,255)
         label_cls = data['label_cls'].cuda()
         label_loc = data['label_loc'].cuda()
         label_loc_weight = data['label_loc_weight'].cuda()
 
         # get feature
-        zf = self.backbone(template)
-        xf = self.backbone(search)
+        zf = self.backbone(template) # [ (512,15,15), (1024,15,15), (2048,15,15) ] 
+        xf = self.backbone(search) # [ (512,31,31), (1024,31,31), (2048,31,31) ] 
+
+        # print("zf shape : ",zf.shape)
+        # # for i in zf:
+        # #     print(i.shape)
+        # print("xf shape : ",xf.shape)
+        # for i in xf:
+        #     print(i.shape)
         if cfg.MASK.MASK:
             zf = zf[-1]
             self.xf_refine = xf[:-1]
             xf = xf[-1]
         if cfg.ADJUST.ADJUST:
-            zf = self.neck(zf)
-            xf = self.neck(xf)
-        cls, loc = self.rpn_head(zf, xf)
+            zf = self.neck(zf) # [ (256,7,7), (256,7,7), (256,7,7) ] 
+            xf = self.neck(xf) # [ (256,31,31), (256,31,31), (256,31,31) ] 
+        # print("zf shape : ",zf.shape)
+        # # for i in zf:
+        # #     print(i.shape)
+        # print("xf shape : ",xf.shape)
+        # for i in xf:
+        #     print(i.shape)
+        cls, loc = self.rpn_head(zf, xf) # (2*5,25,25) (4*5,25,25)
+        # print("cls shape : ",cls.shape)
+        # print("loc shape : ",loc.shape)
 
+        # print("label_cls shape: ",label_cls.shape)
+        # print("label_loc shape : ",label_loc.shape)
+        # print("label_loc_weight shape : ",label_loc_weight.shape)
         # get loss
         cls = self.log_softmax(cls)
         cls_loss = select_cross_entropy_loss(cls, label_cls)

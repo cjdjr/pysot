@@ -1,0 +1,18 @@
+# /ghome/wangmr/pysot/scripts/task1.pbs             
+#PBS -N siamrpn_darts_dwxcorr_otb_4gpu                             
+#PBS -o /ghome/wangmr/outputs/siamrpn_darts_dwxcorr_otb_4gpu.out
+#PBS -e /ghome/wangmr/outputs/siamrpn_darts_dwxcorr_otb_4gpu.err    
+#PBS -l nodes=1:gpus=4:Q      
+#PBS -r y
+
+cd $PBS_O_WORKDIR
+echo Time is `date`
+echo Directory is $PWD
+echo This job runs on following nodes:
+echo -n "Node:"
+cat $PBS_NODEFILE
+echo -n "Gpus:"
+cat $PBS_GPUFILE
+echo "CUDA_VISIBLE_DEVICES:"$CUDA_VISIBLE_DEVICES
+startdocker -D /gpub -u "--ipc=host" -c "sh /ghome/wangmr/pysot/scripts/_train.sh" bit:5000/wangmr-pysot-v1
+

@@ -150,8 +150,8 @@ __C.DATASET.YOUTUBEBB.FRAME_RANGE = 3
 __C.DATASET.YOUTUBEBB.NUM_USE = -1  # use all not repeat
 
 __C.DATASET.COCO = CN()
-__C.DATASET.COCO.ROOT = 'training_dataset/coco/crop511'
-__C.DATASET.COCO.ANNO = 'training_dataset/coco/train2017.json'
+__C.DATASET.COCO.ROOT = 'training_dataset/coco/'
+__C.DATASET.COCO.ANNO = 'training_dataset/coco/traincoco.json'
 __C.DATASET.COCO.FRAME_RANGE = 1
 __C.DATASET.COCO.NUM_USE = -1
 

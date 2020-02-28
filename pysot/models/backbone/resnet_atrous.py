@@ -188,10 +188,15 @@ class ResNet(nn.Module):
         x_ = self.relu(x)
         x = self.maxpool(x_)
 
+        print("after stem : ",x.shape)
         p1 = self.layer1(x)
+        print("after layer1 : ",p1.shape)
         p2 = self.layer2(p1)
+        print("after layer2 : ",p2.shape)
         p3 = self.layer3(p2)
+        print("after layer3 : ",p3.shape)
         p4 = self.layer4(p3)
+        print("after layer4 : ",p4.shape)
         out = [x_, p1, p2, p3, p4]
         out = [out[i] for i in self.used_layers]
         if len(out) == 1:

@@ -54,7 +54,6 @@ def load_pretrain(model, pretrained_path):
                                         'module.')
     else:
         pretrained_dict = remove_prefix(pretrained_dict, 'module.')
-
     try:
         check_keys(model, pretrained_dict)
     except:

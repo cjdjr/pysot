@@ -64,10 +64,7 @@ TRAIN:
 
 DATASET:
     NAMES:
-    - 'VID'
-    - 'YOUTUBEBB'
     - 'COCO'
-    - 'DET'
 
     TEMPLATE:
         SHIFT: 4
