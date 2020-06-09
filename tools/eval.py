@@ -13,6 +13,7 @@ from toolkit.datasets import OTBDataset, UAVDataset, LaSOTDataset, \
         VOTDataset, NFSDataset, VOTLTDataset
 from toolkit.evaluation import OPEBenchmark, AccuracyRobustnessBenchmark, \
         EAOBenchmark, F1Benchmark
+from toolkit.visualization import draw_success_precision
 
 parser = argparse.ArgumentParser(description='tracking evaluation')
 parser.add_argument('--tracker_path', '-p', type=str,
@@ -25,6 +26,7 @@ parser.add_argument('--tracker_prefix', '-t', default='',
                     type=str, help='tracker name')
 parser.add_argument('--show_video_level', '-s', dest='show_video_level',
                     action='store_true')
+parser.add_argument('--vis', dest='vis', action='store_true')
 parser.set_defaults(show_video_level=False)
 args = parser.parse_args()
 
@@ -35,6 +37,7 @@ def main():
                                  args.dataset,
                                  args.tracker_prefix+'*'))
     trackers = [x.split('/')[-1] for x in trackers]
+    print(trackers)
 
     assert len(trackers) > 0
     args.num = min(args.num, len(trackers))
@@ -58,6 +61,16 @@ def main():
                 precision_ret.update(ret)
         benchmark.show_result(success_ret, precision_ret,
                 show_video_level=args.show_video_level)
+        # draw graph
+        if args.vis:
+            print("ok")
+            for attr, videos in dataset.attr.items():
+                draw_success_precision(success_ret,
+                            name=dataset.name,
+                            videos=videos,
+                            attr=attr,
+                            precision_ret=precision_ret)
+
     elif 'LaSOT' == args.dataset:
         dataset = LaSOTDataset(args.dataset, root)
         dataset.set_tracker(tracker_dir, trackers)

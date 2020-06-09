@@ -9,6 +9,8 @@ from pysot.models.backbone.alexnet import alexnetlegacy, alexnet
 from pysot.models.backbone.mobile_v2 import mobilenetv2
 from pysot.models.backbone.resnet_atrous import resnet18, resnet34, resnet50
 from pysot.models.backbone.darts import darts
+from pysot.models.backbone.darts_supernet import darts_supernet
+from pysot.models.backbone.darts_latency_supernet import darts_latency_supernet
 
 BACKBONES = {
               'alexnetlegacy': alexnetlegacy,
@@ -18,6 +20,8 @@ BACKBONES = {
               'resnet50': resnet50,
               'alexnet': alexnet,
               'darts': darts,
+              'darts_supernet':darts_supernet,
+              'darts_latency_supernet':darts_latency_supernet,
             }
 
 

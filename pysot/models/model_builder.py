@@ -82,14 +82,16 @@ class ModelBuilder(nn.Module):
         label_cls = data['label_cls'].cuda()
         label_loc = data['label_loc'].cuda()
         label_loc_weight = data['label_loc_weight'].cuda()
-
+        # print("label_cls : ",label_cls)
+        # print("label_loc : ",label_loc)
+        # print("label_loc_weight : ",label_loc_weight)
         # get feature
         zf = self.backbone(template) # [ (512,15,15), (1024,15,15), (2048,15,15) ] 
         xf = self.backbone(search) # [ (512,31,31), (1024,31,31), (2048,31,31) ] 
 
         # print("zf shape : ",zf.shape)
-        # # for i in zf:
-        # #     print(i.shape)
+        # for i in zf:
+        #     print(i.shape)
         # print("xf shape : ",xf.shape)
         # for i in xf:
         #     print(i.shape)

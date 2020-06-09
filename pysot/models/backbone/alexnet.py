@@ -76,15 +76,15 @@ class AlexNet(nn.Module):
 
     def forward(self, x):
         x = self.layer1(x)
-        print("after layer1 : ",x.shape)
+        # print("after layer1 : ",x.shape)
         x = self.layer2(x)
-        print("after layer2 : ",x.shape)
+        # print("after layer2 : ",x.shape)
         x = self.layer3(x)
-        print("after layer3 : ",x.shape)
+        # print("after layer3 : ",x.shape)
         x = self.layer4(x)
-        print("after layer4 : ",x.shape)
+        # print("after layer4 : ",x.shape)
         x = self.layer5(x)
-        print("after layer5 : ",x.shape)
+        # print("after layer5 : ",x.shape)
         return x
 
 

@@ -6,7 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import torch.nn as nn
-
+from pysot.core.config import cfg
 
 class AdjustLayer(nn.Module):
     def __init__(self, in_channels, out_channels, center_size=7):
@@ -19,10 +19,11 @@ class AdjustLayer(nn.Module):
 
     def forward(self, x):
         x = self.downsample(x)
-        if x.size(3) < 20:
-            l = (x.size(3) - self.center_size) // 2
-            r = l + self.center_size
-            x = x[:, :, l:r, l:r]
+        if cfg.TRAIN.IS_CROP:
+            if x.size(3) < 20:
+                l = (x.size(3) - self.center_size) // 2
+                r = l + self.center_size
+                x = x[:, :, l:r, l:r]
         return x
 
 

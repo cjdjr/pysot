@@ -78,6 +78,12 @@ class AnchorTarget:
 
         overlap = IoU([x1, y1, x2, y2], target)
 
+        # print("target = ",target)
+        # for i in range(9):
+        #     for j in range(9):
+        #         print(x1[0][i][j],y1[0][i][j],x2[0][i][j],y2[0][i][j],overlap[0][i][j])
+        # print("overlap = ",overlap)
+        # print("overlap.shape = ",overlap.shape)
         pos = np.where(overlap > cfg.TRAIN.THR_HIGH)
         neg = np.where(overlap < cfg.TRAIN.THR_LOW)
 

@@ -80,6 +80,14 @@ class Anchors:
         cx, cy, w, h = map(lambda x: x + zero, [cx, cy, w, h])
         x1, y1, x2, y2 = center2corner([cx, cy, w, h])
 
+        # for i in range(9):
+        #     for j in range(9):
+        #         print(x1[0][i][j],y1[0][i][j],x2[0][i][j],y2[0][i][j])
+
         self.all_anchors = (np.stack([x1, y1, x2, y2]).astype(np.float32),
                             np.stack([cx, cy, w,  h]).astype(np.float32))
         return True
+
+# if __name__ == '__main__':
+#     anchors = Anchors(16,[0.33, 0.5, 1, 2, 3],[8])
+#     anchors.generate_all_anchors(im_c=255//2, size=(255-127)//16+1)

@@ -9,7 +9,7 @@ import json
 import logging
 import sys
 import os
-
+import random
 import cv2
 import numpy as np
 from torch.utils.data import Dataset
@@ -186,6 +186,7 @@ class TrkDataset(Dataset):
                 cfg.DATASET.SEARCH.COLOR
             )
         videos_per_epoch = cfg.DATASET.VIDEOS_PER_EPOCH
+        # print("videos_per_epoch = ",videos_per_epoch)
         self.num = videos_per_epoch if videos_per_epoch > 0 else self.num
         self.num *= cfg.TRAIN.EPOCH
         self.pick = self.shuffle()
@@ -237,7 +238,9 @@ class TrkDataset(Dataset):
 
         gray = cfg.DATASET.GRAY and cfg.DATASET.GRAY > np.random.random()
         neg = cfg.DATASET.NEG and cfg.DATASET.NEG > np.random.random()
-
+        # print("index = ",index)
+        # print("neg = ",neg)
+        # print("gray = ",gray)
         # get one dataset
         if neg:
             template = dataset.get_random_target(index)
@@ -247,6 +250,7 @@ class TrkDataset(Dataset):
 
         # get image
         template_image = cv2.imread(template[0])
+
         search_image = cv2.imread(search[0])
 
         # get bounding box
@@ -263,12 +267,62 @@ class TrkDataset(Dataset):
                                        search_box,
                                        cfg.TRAIN.SEARCH_SIZE,
                                        gray=gray)
+                        
+        # img = search
+        # img_bbox = [int(x) for x in bbox]
+        # # print(img_bbox,' ',img.shape)
+        # cv2.rectangle(img, (img_bbox[0], img_bbox[1]),
+        #         (img_bbox[2], img_bbox[3]),
+        #         (0, 255, 0), 3)
+        # cv2.imwrite("/gdata/wangmr/pysot/search0.jpg", img)
+    
+        # img = template
+        # img_bbox = [int(x) for x in _]
+        # # print(img_bbox,' ',img.shape)
+        # cv2.rectangle(img, (img_bbox[0], img_bbox[1]),
+        #         (img_bbox[2], img_bbox[3]),
+        #         (0, 255, 0), 3)
+        # cv2.imwrite("/gdata/wangmr/pysot/template0.jpg", img)
+
+        # print(template.shape)
+        # print(search.shape,' ',bbox)
 
         # get labels
-        cls, delta, delta_weight, overlap = self.anchor_target(
+        cls, delta, delta_weight, overlap= self.anchor_target(
                 bbox, cfg.TRAIN.OUTPUT_SIZE, neg)
+
+
+
+
+        # img = search
+        # img_bbox = [int(x) for x in bbox]
+        # print(img_bbox,' ',img.shape)
+        # cv2.rectangle(img, (img_bbox[0], img_bbox[1]),
+        #         (img_bbox[2], img_bbox[3]),
+        #         (0, 255, 0), 3)
+        # for i in range(0,3,2):
+        #     for j in range(0,3,2):
+        #         r = random.randint(0, 255)
+        #         g = random.randint(0, 255)
+        #         b = random.randint(0, 255)
+        #         cv2.rectangle(img,(x1[0][i][j],y1[0][i][j]),(x2[0][i][j],y2[0][i][j]),(b,g,r),2)
+        # cv2.imwrite("/gdata/wangmr/pysot/search1.jpg", img)
+
         template = template.transpose((2, 0, 1)).astype(np.float32)
         search = search.transpose((2, 0, 1)).astype(np.float32)
+
+        # for i in range(5):
+        #     print(delta_weight[i].sum())
+        # for i in range(9):
+        #     for j in range(9):
+        #         if cls[0][i][j]==0:
+        #             print("i,j = ",i,j)
+        #             print(overlap[0][i][j])
+        # print(cls[0])
+        # print(delta[0])
+        # print(delta_weight[0])
+        # print(overlap[0])
+
         return {
                 'template': template,
                 'search': search,

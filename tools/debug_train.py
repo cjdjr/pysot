@@ -31,7 +31,7 @@ from pysot.utils.misc import describe, commit
 from pysot.models.model_builder import ModelBuilder
 from pysot.datasets.dataset import TrkDataset
 from pysot.core.config import cfg
-
+from pysot.utils.flop_benchmark import count_parameters_in_MB
 
 logger = logging.getLogger('global')
 parser = argparse.ArgumentParser(description='siamrpn tracking')
@@ -85,12 +85,6 @@ def build_opt_lr(model, current_epoch=0):
                 for m in getattr(model.backbone.cells, layer).modules():
                     if isinstance(m, nn.BatchNorm2d):
                         m.train()
-            for layer in ['stem0','stem1']:
-                for name,param in getattr(model.backbone, layer).named_parameters():
-                    param.requires_grad = True
-                for m in getattr(model.backbone, layer).modules():
-                    if isinstance(m, nn.BatchNorm2d):
-                        m.train()
         else:
             for layer in cfg.BACKBONE.TRAIN_LAYERS:
                 for param in getattr(model.backbone, layer).parameters():
@@ -98,10 +92,17 @@ def build_opt_lr(model, current_epoch=0):
                 for m in getattr(model.backbone, layer).modules():
                     if isinstance(m, nn.BatchNorm2d):
                         m.train()
+
     trainable_params = []
     trainable_params += [{'params': filter(lambda x: x.requires_grad,
                                            model.backbone.parameters()),
                           'lr': cfg.BACKBONE.LAYERS_LR * cfg.TRAIN.BASE_LR}]
+    for name,param in model.backbone.named_parameters():
+        if param.requires_grad==True:
+            print(name)
+    for name,param in model.backbone.named_parameters():
+        if param.requires_grad==False:
+            print(name)
 
     if cfg.ADJUST.ADJUST:
         trainable_params += [{'params': model.neck.parameters(),
@@ -183,9 +184,12 @@ def train(train_loader, model, optimizer, lr_scheduler, tb_writer):
             get_rank() == 0:
         os.makedirs(cfg.TRAIN.SNAPSHOT_DIR)
 
-    # logger.info("model\n{}".format(describe(model.module)))
+    logger.info("model\n{}".format(describe(model.module)))
     end = time.time()
     for idx, data in enumerate(train_loader):
+        # model(data)
+        # return
+
         if epoch != idx // num_per_epoch + start_epoch:
             epoch = idx // num_per_epoch + start_epoch
 
@@ -268,42 +272,65 @@ def train(train_loader, model, optimizer, lr_scheduler, tb_writer):
 
 def main():
     rank, world_size = dist_init()
+
+
     logger.info("init done")
 
     # load cfg
     cfg.merge_from_file(args.cfg)
-    if rank == 0:
-        if not os.path.exists(cfg.TRAIN.LOG_DIR):
-            os.makedirs(cfg.TRAIN.LOG_DIR)
-        init_log('global', logging.INFO)
-        if cfg.TRAIN.LOG_DIR:
-            add_file_handler('global',
-                             os.path.join(cfg.TRAIN.LOG_DIR, 'logs.txt'),
-                             logging.INFO)
+    # if rank == 0:
+    #     if not os.path.exists(cfg.TRAIN.LOG_DIR):
+    #         os.makedirs(cfg.TRAIN.LOG_DIR)
+    #     init_log('global', logging.INFO)
+    #     if cfg.TRAIN.LOG_DIR:
+    #         add_file_handler('global',
+    #                          os.path.join(cfg.TRAIN.LOG_DIR, 'logs.txt'),
+    #                          logging.INFO)
 
-        logger.info("Version Information: \n{}\n".format(commit()))
-        logger.info("config \n{}".format(json.dumps(cfg, indent=4)))
+        # logger.info("Version Information: \n{}\n".format(commit()))
+        # logger.info("config \n{}".format(json.dumps(cfg, indent=4)))
+
+    # train_loader = build_data_loader()
+    # train_loader.dataset[241]
+    # for i in range(5):
+    #     # print(train_loader.dataset[0]['label_cls'][i])
+    #     # print(train_loader.dataset[0]['label_loc'][i])
+    #     print(train_loader.dataset[0]['label_loc_weight'][i].sum())
+
+    # return 
 
     # create model
     model = ModelBuilder().cuda().train()
+    print(count_parameters_in_MB(model),"MB")
+    xshape = (1,3,255,255)
+    latency,_ = model.backbone.forward_latency(xshape)
+    # from pysot.models.backbone.operations.basic_operations import table
+    # table = sorted(table)
+    # for x in table:
+    #     print(x)
+    # model.backbone(torch.randn(1,3,255,255).cuda())
+    return
+    # model.backbone(torch.randn(1,3,127,127).cuda())
+    # model(torch.randn(1,3,255,255).cuda())
     # print(model.backbone)
-    # return 
-
     # load pretrained backbone weights
     if cfg.BACKBONE.PRETRAINED:
         cur_path = os.path.dirname(os.path.realpath(__file__))
         backbone_path = os.path.join(cur_path, '../', cfg.BACKBONE.PRETRAINED)
         load_pretrain(model.backbone, backbone_path)
-    # print("ok")
-    # return
+    print("ok")
+    return 
     # create tensorboard writer
-    if rank == 0 and cfg.TRAIN.LOG_DIR:
-        tb_writer = SummaryWriter(cfg.TRAIN.LOG_DIR)
-    else:
-        tb_writer = None
+    # if rank == 0 and cfg.TRAIN.LOG_DIR:
+    #     tb_writer = SummaryWriter(cfg.TRAIN.LOG_DIR)
+    # else:
+    #     tb_writer = None
 
     # build dataset loader
-    train_loader = build_data_loader()
+    # train_loader = build_data_loader()
+
+    # print(train_loader.dataset[0]['label_loc_weight'])
+    # return 
 
     # build optimizer and lr_scheduler
     optimizer, lr_scheduler = build_opt_lr(model,

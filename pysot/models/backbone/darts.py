@@ -106,54 +106,6 @@ class Cell(nn.Module):
       states += [s]
     return torch.cat([states[i] for i in self._concat], dim=1)
 
-class NetworkCIFAR(nn.Module):
-  def __init__(self, genotype, C, layers):
-    super(NetworkCIFAR, self).__init__()
-    self.drop_path_prob = 0.0
-    self._layers = layers
-    # self._auxiliary = auxiliary
-
-    stem_multiplier = 3
-    C_curr = stem_multiplier * C
-    self.stem = nn.Sequential(nn.Conv2d(3, C_curr, kernel_size=3, padding=1,bias=False), # stride=1
-                              nn.BatchNorm2d(C_curr))
-
-    C_prev_prev, C_prev, C_curr = C_curr, C_curr, C
-    self.cells = nn.ModuleList()
-    reduction_prev = False
-    for i in range(layers):
-      if i in [layers // 3, 2 * layers // 3]:
-        C_curr *= 2
-        reduction = True
-      else:
-        reduction = False
-      cell = Cell(genotype, C_prev_prev, C_prev, C_curr, reduction, reduction_prev)
-      reduction_prev = reduction
-      self.cells += [cell]
-      C_prev_prev, C_prev = C_prev, cell.multiplier * C_curr
-      if i == 2 * layers // 3:
-        C_to_auxiliary = C_prev
-
-    # if auxiliary:
-    #   self.auxiliary_head = AuxiliaryHeadCIFAR(C_to_auxiliary, num_classes)
-    # self.global_pooling = nn.AdaptiveAvgPool2d(1)
-    # self.classifier = nn.Linear(C_prev, num_classes)
-
-  def forward(self, input):
-    # logits_aux = None
-    s0 = s1 = self.stem(input)
-    for i, cell in enumerate(self.cells):
-      s0, s1 = s1, cell(s0, s1, self.drop_path_prob)
-      print(i,' : ',s1.shape)
-    #   if i == 2 * self._layers // 3:
-    #     if self._auxiliary and self.training:
-    #       logits_aux = self.auxiliary_head(s1)
-    # out = self.global_pooling(s1)
-    # logits = self.classifier(out.view(out.size(0), -1))
-    # return logits
-    return None
-
-
 class NetworkImageNet(nn.Module):
 
   def __init__(self, used_layers, genotype, C, layers):
@@ -172,15 +124,15 @@ class NetworkImageNet(nn.Module):
 
     self.stem1 = nn.Sequential(
       nn.ReLU(inplace=True),
-      nn.Conv2d(C, C, 3, stride=2, padding=1, bias=False),
+      nn.Conv2d(C, C, 3, stride=1, padding=1, bias=False),
       nn.BatchNorm2d(C))
 
     C_prev_prev, C_prev, C_curr = C, C, C
 
     self.cells = nn.ModuleList()
-    reduction_prev = True
+    reduction_prev = False
     for i in range(layers):
-      if i in [layers // 3, 2 * layers // 3]:
+      if i in [layers // 3]:
         C_curr *= 2
         reduction = True
       else:
@@ -198,6 +150,23 @@ class NetworkImageNet(nn.Module):
     # self.classifier = nn.Linear(C_prev, num_classes)
 
   def forward(self, input):
+    """
+    in: torch.Size([b, 3, 255, 255])
+    stem0: torch.Size([b, 48, 64, 64])
+    stem1: torch.Size([b, 48, 64, 64])
+    cell: 0 torch.Size([b, 192, 64, 64]) False
+    cell: 1 torch.Size([b, 192, 64, 64]) False
+    cell: 2 torch.Size([b, 192, 64, 64]) False
+    cell: 3 torch.Size([b, 384, 32, 32]) True
+    cell: 4 torch.Size([b, 384, 32, 32]) False
+    cell: 5 torch.Size([b, 384, 32, 32]) False
+    cell: 6 torch.Size([b, 384, 32, 32]) False
+    cell: 7 torch.Size([b, 384, 32, 32]) False
+    cell: 8 torch.Size([b, 384, 32, 32]) False
+    cell: 9 torch.Size([b, 384, 32, 32]) False
+    :param x:
+    :return:
+    """
     # logits_aux = None
     s0 = self.stem0(input)
     # print('stem0 : ',s0.shape)

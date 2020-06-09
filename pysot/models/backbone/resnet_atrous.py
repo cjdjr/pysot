@@ -124,8 +124,10 @@ class ResNet(nn.Module):
 
         self.feature_size = 128 * block.expansion
         self.used_layers = used_layers
-        layer3 = True if 3 in used_layers else False
-        layer4 = True if 4 in used_layers else False
+        layer3 = True
+        layer4 = True
+        # layer3 = True if 3 in used_layers else False
+        # layer4 = True if 4 in used_layers else False
 
         if layer3:
             self.layer3 = self._make_layer(block, 256, layers[2],
@@ -188,15 +190,15 @@ class ResNet(nn.Module):
         x_ = self.relu(x)
         x = self.maxpool(x_)
 
-        print("after stem : ",x.shape)
+        # print("after stem : ",x.shape)
         p1 = self.layer1(x)
-        print("after layer1 : ",p1.shape)
+        # print("after layer1 : ",p1.shape)
         p2 = self.layer2(p1)
-        print("after layer2 : ",p2.shape)
+        # print("after layer2 : ",p2.shape)
         p3 = self.layer3(p2)
-        print("after layer3 : ",p3.shape)
+        # print("after layer3 : ",p3.shape)
         p4 = self.layer4(p3)
-        print("after layer4 : ",p4.shape)
+        # print("after layer4 : ",p4.shape)
         out = [x_, p1, p2, p3, p4]
         out = [out[i] for i in self.used_layers]
         if len(out) == 1:

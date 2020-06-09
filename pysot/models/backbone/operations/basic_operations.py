@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-# from mcc_nas.utils.latency import predict_latency,compute_latency
+from pysot.utils.latency import predict_latency,compute_latency
+
+table = []
 
 class ReLUConvBN(nn.Module):
   """
@@ -34,6 +36,8 @@ class ReLUConvBN(nn.Module):
 
   def forward_latency(self,x):
     name = "ReLUConvBN H:%d W:%d C_IN:%d C_OUT:%d KERNELSIZE:%d STRIDE:%d PADDING:%d AFFINE:%s"%(x[1],x[2],self.C_in,self.C_out,self.kernel_size,self.stride,self.padding,self.affine)
+    # table.append(name)
+    # latency=0.
     latency = predict_latency(name)
     fun = lambda x:(x+2*self.padding-self.kernel_size)//self.stride+1
     return latency,(self.C_out,fun(x[1]),fun(x[2]))
@@ -81,6 +85,9 @@ class DilConv(nn.Module):
   def forward_latency(self,x):
     name = "DilConv H:%d W:%d C_IN:%d C_OUT:%d KERNELSIZE:%d STRIDE:%d PADDING:%d DILATION:%d AFFINE:%s"%(x[1],x[2],self.C_in,self.C_out,self.kernel_size,self.stride,self.padding,self.dilation,self.affine)
     latency = predict_latency(name)
+    # print(name)
+    # table.append(name)
+    # latency=0.
     fun = lambda x:(x+2*self.padding-self.dilation*(self.kernel_size-1)-1)//self.stride+1
     return latency,(self.C_out,fun(x[1]),fun(x[2]))
     
@@ -131,6 +138,8 @@ class SepConv(nn.Module):
   def forward_latency(self,x):
     name = "SepConv H:%d W:%d C_IN:%d C_OUT:%d KERNELSIZE:%d STRIDE:%d PADDING:%d AFFINE:%s"%(x[1],x[2],self.C_in,self.C_out,self.kernel_size,self.stride,self.padding,self.affine)
     latency = predict_latency(name)
+    # table.append(name)
+    # latency=0.
     fun = lambda x:(x+2*self.padding-self.kernel_size)//self.stride+1
     return latency,(self.C_out,fun(x[1]),fun(x[2]))
     
@@ -151,7 +160,9 @@ class Identity(nn.Module):
 
   def forward_latency(self,x):
     name = "Identity H:%d W:%d C_IN:%d"%(x[1],x[2],x[0])
+    # latency=0.
     latency = predict_latency(name)
+    # table.append(name)
     return latency,x
   
   @staticmethod
@@ -181,6 +192,8 @@ class Zero(nn.Module):
   def forward_latency(self,x):
     name = "Zero H:%d W:%d C_IN:%d C_OUT:%d STRIDE:%d"%(x[1],x[2],self.C_in,self.C_out,self.stride)
     latency = predict_latency(name)
+    # table.append(name)
+    # latency=0.
     return latency,(self.C_out,x[1]//self.stride,x[2]//self.stride)
   
   @staticmethod
@@ -227,6 +240,8 @@ class FactorizedReduce(nn.Module):
   def forward_latency(self,x):
     name = "FactorizedReduce H:%d W:%d C_IN:%d C_OUT:%d AFFINE:%s"%(x[1],x[2],self.C_in,self.C_out,self.affine)
     latency = predict_latency(name)
+    # table.append(name)
+    # latency=0.
     return latency,(self.C_out,x[1]//2,x[2]//2)
     
   @staticmethod

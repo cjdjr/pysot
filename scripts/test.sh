@@ -1,8 +1,14 @@
 #!/bin/bash
 root='/ghome/wangmr/pysot'
+export PATH=$PATH:/software/conda/envs/pysot/bin
 export PYTHONPATH=$root:$PYTHONPATH
 
-cd $root/experiments/siamrpn_alex_dwxcorr_otb
-python -u $root/tools/test.py --snapshot model.pth --dataset OTB100 --config config.yaml
+cd /gdata/wangmr/pysot/experiments/
 
-python $root/tools/eval.py --tracker_path ./results --dataset OTB100 --num 1 --tracker_prefix 'model'
+python $root/tools/eval.py 	 \
+	--tracker_path ./draw_graph \
+	--dataset OTB100        \
+	--num 4 		 \
+	--tracker_prefix '*' \
+	--vis
+

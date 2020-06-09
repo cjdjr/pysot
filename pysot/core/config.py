@@ -16,6 +16,29 @@ __C.META_ARC = "siamrpn_r50_l234_dwxcorr"
 __C.CUDA = True
 
 # ------------------------------------------------------------------------ #
+# Searching options
+# ------------------------------------------------------------------------ #
+__C.SEARCH = CN()
+
+__C.SEARCH.SEARCH_SPACE = 'DARTS-SEARCH-SPACE'
+
+__C.SEARCH.W_LEARNING_RATE = 0.1
+
+__C.SEARCH.A_LEARNING_RATE= 3e-4
+
+__C.SEARCH.W_MOMENTUM = 0.9
+
+__C.SEARCH.W_WEIGHT_DECAY = 3e-4
+
+__C.SEARCH.A_WEIGHT_DECAY = 1e-4
+
+__C.SEARCH.ALPHA = 1.0
+
+__C.SEARCH.BETA = 0.6
+
+__C.SEARCH.REF = 30
+
+# ------------------------------------------------------------------------ #
 # Training options
 # ------------------------------------------------------------------------ #
 __C.TRAIN = CN()
@@ -36,6 +59,7 @@ __C.TRAIN.POS_NUM = 16
 # Number of anchors per images
 __C.TRAIN.TOTAL_NUM = 64
 
+__C.TRAIN.IS_CROP = True
 
 __C.TRAIN.EXEMPLAR_SIZE = 127
 
@@ -98,8 +122,9 @@ __C.TRAIN.LR_WARMUP.KWARGS = CN(new_allowed=True)
 # ------------------------------------------------------------------------ #
 # Dataset options
 # ------------------------------------------------------------------------ #
-__C.DATASET = CN(new_allowed=True)
+__C.DATASET = CN()
 
+__C.DATASET.VIDEOS_PER_EPOCH = 600000
 # Augmentation
 # for template
 __C.DATASET.TEMPLATE = CN()
@@ -138,14 +163,14 @@ __C.DATASET.GRAY = 0.0
 __C.DATASET.NAMES = ('VID', 'COCO', 'DET', 'YOUTUBEBB')
 
 __C.DATASET.VID = CN()
-__C.DATASET.VID.ROOT = 'training_dataset/vid/crop511'
-__C.DATASET.VID.ANNO = 'training_dataset/vid/train.json'
+__C.DATASET.VID.ROOT = 'training_dataset/vid/'
+__C.DATASET.VID.ANNO = 'training_dataset/vid/trainvid.json'
 __C.DATASET.VID.FRAME_RANGE = 100
 __C.DATASET.VID.NUM_USE = 100000  # repeat until reach NUM_USE
 
 __C.DATASET.YOUTUBEBB = CN()
-__C.DATASET.YOUTUBEBB.ROOT = 'training_dataset/yt_bb/crop511'
-__C.DATASET.YOUTUBEBB.ANNO = 'training_dataset/yt_bb/train.json'
+__C.DATASET.YOUTUBEBB.ROOT = 'training_dataset/ytbb/'
+__C.DATASET.YOUTUBEBB.ANNO = 'training_dataset/ytbb/train.json'
 __C.DATASET.YOUTUBEBB.FRAME_RANGE = 3
 __C.DATASET.YOUTUBEBB.NUM_USE = -1  # use all not repeat
 
@@ -156,12 +181,12 @@ __C.DATASET.COCO.FRAME_RANGE = 1
 __C.DATASET.COCO.NUM_USE = -1
 
 __C.DATASET.DET = CN()
-__C.DATASET.DET.ROOT = 'training_dataset/det/crop511'
-__C.DATASET.DET.ANNO = 'training_dataset/det/train.json'
+__C.DATASET.DET.ROOT = 'training_dataset/det/'
+__C.DATASET.DET.ANNO = 'training_dataset/det/traindet.json'
 __C.DATASET.DET.FRAME_RANGE = 1
 __C.DATASET.DET.NUM_USE = -1
 
-__C.DATASET.VIDEOS_PER_EPOCH = 600000
+
 # ------------------------------------------------------------------------ #
 # Backbone options
 # ------------------------------------------------------------------------ #
@@ -288,3 +313,52 @@ __C.TRACK.MASK_THERSHOLD = 0.30
 
 # Mask output size
 __C.TRACK.MASK_OUTPUT_SIZE = 127
+
+
+# ------------------------------------------------------------------------ #
+# Pretrain options
+# ------------------------------------------------------------------------ #
+__C.PRETRAIN = CN()
+
+__C.PRETRAIN.GENOTYPE = ""
+
+__C.PRETRAIN.BASE_CH = 48
+
+__C.PRETRAIN.CELL_NUM = 10
+
+__C.PRETRAIN.AUXILIARY = 0.4
+
+__C.PRETRAIN.DATADIR = "/gpub/imagenet_raw/"
+
+__C.PRETRAIN.MODEL_SAVE_DIR = "/ghome/wangmr/pysot/pretrained_models/model.pth"
+
+# ------------------------------------------------------------------------ #
+# Presearch options
+# ------------------------------------------------------------------------ #
+__C.PRESEARCH = CN()
+
+__C.PRESEARCH.GENOTYPE = ""
+
+__C.PRESEARCH.BASE_CH = 48
+
+__C.PRESEARCH.CELL_NUM = 8
+
+__C.PRESEARCH.AUXILIARY = 0.4
+
+__C.PRESEARCH.DATADIR = "/gdata/wangmr/cifar10"
+
+__C.PRESEARCH.MODEL_SAVE_DIR = "/ghome/wangmr/pysot/pretrained_models/presearchmodel.pth"
+
+__C.PRESEARCH.W_LEARNING_RATE = 0.025
+
+__C.PRESEARCH.W_MIN_LEARNING_RATE = 0.001
+
+__C.PRESEARCH.W_WEIGHT_DECAY = 3e-4
+
+__C.PRESEARCH.W_MOMENTUM = 0.9
+
+__C.PRESEARCH.A_LEARNING_RATE = 3e-4
+
+__C.PRESEARCH.A_WEIGHT_DECAY = 1e-4
+
+__C.PRESEARCH.EPOCH_START_ARCH_UPDATE = -1
